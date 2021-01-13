@@ -6,4 +6,5 @@ interface BrowserRepositoryInterface
     public function save(\Tony\NotifyOnNewBrowserLogin\Api\Data\BrowserInterface $browserData);
     public function getByUserId($userId);
     public function getList(\Magento\Framework\Api\SearchCriteriaInterface $searchCriteria);
+    public function find(\Tony\NotifyOnNewBrowserLogin\Api\Data\BrowserInterface $browserData);
 }

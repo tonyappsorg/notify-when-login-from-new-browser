@@ -14,6 +14,10 @@ class Browser extends AbstractExtensibleModel implements BrowserInterface
         $this->_init(ResourceModel\Browser::class);
     }
 
+    /**
+     * @param int $id
+     * @return $this
+     */
     public function setUserId(int $id)
     {
         $this->setData('user_id', $id);
@@ -21,37 +25,67 @@ class Browser extends AbstractExtensibleModel implements BrowserInterface
         return $this;
     }
 
-    public function setUser($user)
-    {
-        $this->setUserId($user->getId());
-
-        $this->setUser($user);
-
-        return $this;
-    }
-
+    /**
+     * @return int
+     */
     public function getUserId() : int
     {
         return $this->getData('user_id');
     }
 
-    public function setBrowser($id)
+    /**
+     * @param string $browser
+     * @return $this
+     */
+    public function setBrowser(string $browser)
     {
-        $this->setData('browser', $id);
+        $this->setData('browser', $browser);
 
         return $this;
     }
-    public function getBrowser($id) : string
+
+    /**
+     * @return string
+     */
+    public function getBrowser() : string
     {
         return $this->getData('browser');
     }
-    public function setIp($id)
+
+    /**
+     * @param string $platform_name
+     * @return $this
+     */
+    public function setPlatform(string $platform_name)
     {
-        $this->setData('ip', $id);
+        $this->setData('platform', $platform_name);
 
         return $this;
     }
-    public function getIp($id) : string
+
+    /**
+     * @return string
+     */
+    public function getPlatform() : string
+    {
+        return $this->getData('platform');
+    }
+
+    /**
+     * @param string $ip
+     * @return $this
+     */
+    public function setIp(string $ip)
+    {
+        $this->setData('ip', $ip);
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIp() : string
     {
         return $this->getData('ip');
     }

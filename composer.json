@@ -1,0 +1,13 @@
+{
+    "name": "wkaminsk/magento2-notify-when-login-from-new-browser",
+
+    "require": {
+        "cbschuld/browser.php": "*"
+    },
+    "autoload": {
+        "files": ["registration.php"],
+        "psr-4": {
+            "Tony\\NotifyOnNewBrowserLogin\\": ""
+        }
+    }
+}

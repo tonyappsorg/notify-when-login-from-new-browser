@@ -18,38 +18,56 @@ class StoreLoginDataInformation implements ObserverInterface
     private $browserRepository;
     private $request;
     private $transportBuilder;
+    private $userAgent;
 
+    /**
+     * StoreLoginDataInformation constructor.
+     * @param \Browser $userAgent
+     * @param BrowserFactory $browserFactory
+     * @param BrowserRepository $browserRepository
+     * @param RequestInterface $request
+     * @param TransportBuilder $transportBuilder
+     */
     public function __construct(
+        \Browser $userAgent,
         BrowserFactory $browserFactory,
         BrowserRepository $browserRepository,
         RequestInterface $request,
         TransportBuilder $transportBuilder
     ) {
+        $this->userAgent = $userAgent;
         $this->browserFactory = $browserFactory;
         $this->request = $request;
         $this->browserRepository = $browserRepository;
         $this->transportBuilder = $transportBuilder;
     }
+
+    /**
+     * @param Observer $observer
+     */
     public function execute(Observer $observer)
     {
         /** @var User $user */
         $user = $observer->getUser();
-        /** @var \Tony\NotifyOnNewBrowserLogin\Model\Browser $browser */
         $browser = $this->browserFactory->create();
 
         $browser->setUserId($user->getId());
         $browser->setIp($this->request->getServer("REMOTE_ADDR"));
-        $browser->setBrowser($this->request->getServer("HTTP_USER_AGENT"));
+        $browser->setBrowser($this->userAgent->getBrowser());
+        $browser->setPlatform($this->userAgent->getPlatform());
 
-//        $collection = $this->browserRepository->getByUserId($user->getId());
-
-//        foreach ($collection as $entry) {
-//        }
-
-//        $this->browserRepository->save($browser);
-        $this->notify($user);
+        $collection = $this->browserRepository->find($browser);
+var_dump($collection); exit;
+        if (!$collection) {
+            $this->browserRepository->save($browser);
+            $this->notify($user);
+        }
     }
 
+    /**
+     * @param User $admin
+     * @return $this
+     */
     private function notify(User $admin)
     {
         try {
@@ -68,6 +86,8 @@ class StoreLoginDataInformation implements ObserverInterface
             $transport->sendMessage();
         } catch (LocalizedException $e) {
         } catch (MailException $e) {
+            var_dump($e->getMessage());
+            exit;
         }
 
         return $this;

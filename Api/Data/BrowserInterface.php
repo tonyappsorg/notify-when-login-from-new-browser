@@ -5,8 +5,10 @@ interface BrowserInterface
 {
     public function setUserId(int $id);
     public function getUserId() : int;
-    public function setBrowser($id);
-    public function getBrowser($id) : string;
-    public function setIp($id);
-    public function getIp($id) : string;
+    public function setBrowser(string $browser);
+    public function getBrowser() : string;
+    public function setPlatform(string $platform_name);
+    public function getPlatform() : string;
+    public function setIp(string $ip);
+    public function getIp() : string;
 }

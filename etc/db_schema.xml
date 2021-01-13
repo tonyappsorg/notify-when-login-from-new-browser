@@ -5,7 +5,9 @@
            comment="Catalog Product Datetime Attribute Backend Table">
         <column xsi:type="int" name="entity_id" padding="11" unsigned="true" nullable="false" identity="true" comment="ID"/>
         <column xsi:type="int" name="user_id" padding="11" unsigned="true" nullable="false" identity="false" default="0" comment="Admin User ID"/>
-        <column xsi:type="datetime" name="value" on_update="false" nullable="true" comment="Value"/>
+        <column xsi:type="text" name="browser" comment="Browser data"/>
+        <column xsi:type="text" name="platform" comment="OS"/>
+        <column xsi:type="text" name="ip" comment="IP"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="entity_id"/>
         </constraint>
