@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="tony_notify_on_new_browser_login_template"
+              label="Notification when user logged in from unrecognized account"
+              file="new_browser_login_notification.html"
+              type="html"
+              module="Tony_NotifyOnNewBrowserLogin"
+              area="adminhtml"
+    />
+</config>
