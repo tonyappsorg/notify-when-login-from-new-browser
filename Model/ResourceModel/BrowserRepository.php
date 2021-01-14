@@ -76,9 +76,10 @@ class BrowserRepository implements BrowserRepositoryInterface
     {
         /** @var \Tony\NotifyOnNewBrowserLogin\Model\ResourceModel\Browser\Collection $collection */
         $collection = $this->browserFactory->create()->getCollection();
-        var_dump(get_class($this->collectionProcessor)); exit;
 
-        return $this->collectionProcessor->process($searchCriteria, $collection);
+        $this->collectionProcessor->process($searchCriteria, $collection);
+
+        return $collection;
     }
 
     /**

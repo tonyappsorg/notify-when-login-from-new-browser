@@ -57,11 +57,11 @@ class StoreLoginDataInformation implements ObserverInterface
         $browser->setPlatform($this->userAgent->getPlatform());
 
         $collection = $this->browserRepository->find($browser);
-var_dump($collection); exit;
-        if (!$collection) {
-            $this->browserRepository->save($browser);
+
+//        if ($collection->getSize() == 0) {
+//            $this->browserRepository->save($browser);
             $this->notify($user);
-        }
+//        }
     }
 
     /**
@@ -77,7 +77,8 @@ var_dump($collection); exit;
                 ->setFrom('general')
                 ->setTemplateVars(
                     [
-                        'subject' => '12322222'
+                        'subject' => '12322222',
+                        'user' => $admin
                     ]
                 )
                 ->addTo($admin->getEmail(), $admin->getName())
@@ -85,6 +86,8 @@ var_dump($collection); exit;
 
             $transport->sendMessage();
         } catch (LocalizedException $e) {
+            var_dump($e->getMessage());
+            exit;
         } catch (MailException $e) {
             var_dump($e->getMessage());
             exit;
