@@ -2,7 +2,7 @@
     "name": "wkaminsk/magento2-notify-when-login-from-new-browser",
 
     "require": {
-        "cbschuld/browser.php": "*"
+        "cbschuld/browser.php": "^2.0"
     },
     "autoload": {
         "files": ["registration.php"],

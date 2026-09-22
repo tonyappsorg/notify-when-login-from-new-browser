@@ -1,7 +1,6 @@
 <?php
 namespace Tony\NotifyOnNewBrowserLogin\Model\ResourceModel;
 
-use Magento\Customer\Api\Data\GroupSearchResultsInterfaceFactory;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\Search\FilterGroup;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
@@ -16,7 +15,6 @@ class BrowserRepository implements BrowserRepositoryInterface
     private $filterBuilder;
     private $filterGroup;
     private $criteria;
-    private $searchResultsFactory;
     private $collectionProcessor;
 
     /**
@@ -25,7 +23,6 @@ class BrowserRepository implements BrowserRepositoryInterface
      * @param FilterBuilder $filterBuilder
      * @param FilterGroup $filterGroup
      * @param SearchCriteriaInterface $criteria
-     * @param GroupSearchResultsInterfaceFactory $searchResultsFactory
      * @param CollectionProcessorInterface|null $collectionProcessor
      */
     public function __construct(
@@ -33,14 +30,12 @@ class BrowserRepository implements BrowserRepositoryInterface
         FilterBuilder $filterBuilder,
         FilterGroup $filterGroup,
         SearchCriteriaInterface $criteria,
-        GroupSearchResultsInterfaceFactory $searchResultsFactory,
         CollectionProcessorInterface $collectionProcessor
     ) {
         $this->browserFactory = $browserFactory;
         $this->criteria = $criteria;
         $this->filterBuilder = $filterBuilder;
         $this->filterGroup = $filterGroup;
-        $this->searchResultsFactory = $searchResultsFactory;
         $this->collectionProcessor = $collectionProcessor;
     }
 

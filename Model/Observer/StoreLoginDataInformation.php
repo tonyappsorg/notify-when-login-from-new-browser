@@ -8,6 +8,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\MailException;
 use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\User\Model\User;
+use Psr\Log\LoggerInterface;
 use Tony\NotifyOnNewBrowserLogin\Model\BrowserFactory;
 use Tony\NotifyOnNewBrowserLogin\Model\ResourceModel\BrowserRepository;
 
@@ -19,6 +20,7 @@ class StoreLoginDataInformation implements ObserverInterface
     private $request;
     private $transportBuilder;
     private $userAgent;
+    private $logger;
 
     /**
      * StoreLoginDataInformation constructor.
@@ -27,19 +29,22 @@ class StoreLoginDataInformation implements ObserverInterface
      * @param BrowserRepository $browserRepository
      * @param RequestInterface $request
      * @param TransportBuilder $transportBuilder
+     * @param LoggerInterface $logger
      */
     public function __construct(
         \Browser $userAgent,
         BrowserFactory $browserFactory,
         BrowserRepository $browserRepository,
         RequestInterface $request,
-        TransportBuilder $transportBuilder
+        TransportBuilder $transportBuilder,
+        LoggerInterface $logger
     ) {
         $this->userAgent = $userAgent;
         $this->browserFactory = $browserFactory;
         $this->request = $request;
         $this->browserRepository = $browserRepository;
         $this->transportBuilder = $transportBuilder;
+        $this->logger = $logger;
     }
 
     /**
@@ -58,17 +63,18 @@ class StoreLoginDataInformation implements ObserverInterface
 
         $collection = $this->browserRepository->find($browser);
 
-//        if ($collection->getSize() == 0) {
-//            $this->browserRepository->save($browser);
-            $this->notify($user);
-//        }
+        if ($collection->getSize() == 0) {
+            $this->browserRepository->save($browser);
+            $this->notify($user, $browser);
+        }
     }
 
     /**
      * @param User $admin
+     * @param \Tony\NotifyOnNewBrowserLogin\Api\Data\BrowserInterface $browser
      * @return $this
      */
-    private function notify(User $admin)
+    private function notify(User $admin, \Tony\NotifyOnNewBrowserLogin\Api\Data\BrowserInterface $browser)
     {
         try {
             $transport = $this->transportBuilder
@@ -77,8 +83,9 @@ class StoreLoginDataInformation implements ObserverInterface
                 ->setFrom('general')
                 ->setTemplateVars(
                     [
-                        'subject' => '12322222',
-                        'user' => $admin
+                        'subject' => 'New sign-in to your admin account',
+                        'user' => $admin,
+                        'browser' => $browser->getBrowser(),
                     ]
                 )
                 ->addTo($admin->getEmail(), $admin->getName())
@@ -86,11 +93,9 @@ class StoreLoginDataInformation implements ObserverInterface
 
             $transport->sendMessage();
         } catch (LocalizedException $e) {
-            var_dump($e->getMessage());
-            exit;
+            $this->logger->error('Failed to send new browser login notification: ' . $e->getMessage());
         } catch (MailException $e) {
-            var_dump($e->getMessage());
-            exit;
+            $this->logger->error('Failed to send new browser login notification: ' . $e->getMessage());
         }
 
         return $this;
