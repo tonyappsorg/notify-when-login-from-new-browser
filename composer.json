@@ -1,13 +1,21 @@
 {
-    "name": "wkaminsk/magento2-notify-when-login-from-new-browser",
-
+    "name": "tonyapps/module-notify-on-new-browser-login",
+    "description": "Emails an admin user when they sign in from a browser/platform not seen before",
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": "proprietary",
     "require": {
-        "cbschuld/browser.php": "^2.0"
+        "php": ">=8.3",
+        "cbschuld/browser.php": "^2.0",
+        "magento/framework": "*",
+        "magento/module-backend": "*",
+        "magento/module-email": "*",
+        "magento/module-user": "*"
     },
     "autoload": {
         "files": ["registration.php"],
         "psr-4": {
-            "Tony\\NotifyOnNewBrowserLogin\\": ""
+            "Tonyapps\\NotifyOnNewBrowserLogin\\": ""
         }
     }
 }

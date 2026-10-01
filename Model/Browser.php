@@ -1,8 +1,8 @@
 <?php
-namespace Tony\NotifyOnNewBrowserLogin\Model;
+namespace Tonyapps\NotifyOnNewBrowserLogin\Model;
 
 use Magento\Framework\Model\AbstractExtensibleModel;
-use Tony\NotifyOnNewBrowserLogin\Api\Data\BrowserInterface;
+use Tonyapps\NotifyOnNewBrowserLogin\Api\Data\BrowserInterface;
 
 class Browser extends AbstractExtensibleModel implements BrowserInterface
 {

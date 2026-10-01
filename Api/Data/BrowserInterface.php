@@ -1,5 +1,5 @@
 <?php
-namespace Tony\NotifyOnNewBrowserLogin\Api\Data;
+namespace Tonyapps\NotifyOnNewBrowserLogin\Api\Data;
 
 interface BrowserInterface
 {

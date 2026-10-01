@@ -1,5 +1,5 @@
 <?php
-namespace Tony\NotifyOnNewBrowserLogin\Model\Observer;
+namespace Tonyapps\NotifyOnNewBrowserLogin\Model\Observer;
 
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
@@ -9,12 +9,12 @@ use Magento\Framework\Exception\MailException;
 use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\User\Model\User;
 use Psr\Log\LoggerInterface;
-use Tony\NotifyOnNewBrowserLogin\Model\BrowserFactory;
-use Tony\NotifyOnNewBrowserLogin\Model\ResourceModel\BrowserRepository;
+use Tonyapps\NotifyOnNewBrowserLogin\Model\BrowserFactory;
+use Tonyapps\NotifyOnNewBrowserLogin\Model\ResourceModel\BrowserRepository;
 
 class StoreLoginDataInformation implements ObserverInterface
 {
-    const EMAIL_TEMPLATE_ID = 'tony_notify_on_new_browser_login_template';
+    const EMAIL_TEMPLATE_ID = 'tonyapps_notify_on_new_browser_login_template';
     private $browserFactory;
     private $browserRepository;
     private $request;
@@ -71,10 +71,10 @@ class StoreLoginDataInformation implements ObserverInterface
 
     /**
      * @param User $admin
-     * @param \Tony\NotifyOnNewBrowserLogin\Api\Data\BrowserInterface $browser
+     * @param \Tonyapps\NotifyOnNewBrowserLogin\Api\Data\BrowserInterface $browser
      * @return $this
      */
-    private function notify(User $admin, \Tony\NotifyOnNewBrowserLogin\Api\Data\BrowserInterface $browser)
+    private function notify(User $admin, \Tonyapps\NotifyOnNewBrowserLogin\Api\Data\BrowserInterface $browser)
     {
         try {
             $transport = $this->transportBuilder

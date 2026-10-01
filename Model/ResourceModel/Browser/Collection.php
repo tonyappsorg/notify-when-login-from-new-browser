@@ -1,8 +1,8 @@
 <?php
-namespace Tony\NotifyOnNewBrowserLogin\Model\ResourceModel\Browser;
+namespace Tonyapps\NotifyOnNewBrowserLogin\Model\ResourceModel\Browser;
 
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
-use Tony\NotifyOnNewBrowserLogin\Model\Browser;
+use Tonyapps\NotifyOnNewBrowserLogin\Model\Browser;
 
 class Collection extends AbstractCollection
 {
@@ -18,6 +18,6 @@ class Collection extends AbstractCollection
      */
     protected function _construct()
     {
-        $this->_init(Browser::class, \Tony\NotifyOnNewBrowserLogin\Model\ResourceModel\Browser::class);
+        $this->_init(Browser::class, \Tonyapps\NotifyOnNewBrowserLogin\Model\ResourceModel\Browser::class);
     }
 }

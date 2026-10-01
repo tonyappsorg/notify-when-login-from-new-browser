@@ -1,13 +1,13 @@
 <?php
-namespace Tony\NotifyOnNewBrowserLogin\Model\ResourceModel;
+namespace Tonyapps\NotifyOnNewBrowserLogin\Model\ResourceModel;
 
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\Search\FilterGroup;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
-use Tony\NotifyOnNewBrowserLogin\Api\BrowserRepositoryInterface;
-use Tony\NotifyOnNewBrowserLogin\Api\Data\BrowserInterface;
-use Tony\NotifyOnNewBrowserLogin\Model\BrowserFactory;
+use Tonyapps\NotifyOnNewBrowserLogin\Api\BrowserRepositoryInterface;
+use Tonyapps\NotifyOnNewBrowserLogin\Api\Data\BrowserInterface;
+use Tonyapps\NotifyOnNewBrowserLogin\Model\BrowserFactory;
 
 class BrowserRepository implements BrowserRepositoryInterface
 {
@@ -69,7 +69,7 @@ class BrowserRepository implements BrowserRepositoryInterface
      */
     public function getList(SearchCriteriaInterface $searchCriteria)
     {
-        /** @var \Tony\NotifyOnNewBrowserLogin\Model\ResourceModel\Browser\Collection $collection */
+        /** @var \Tonyapps\NotifyOnNewBrowserLogin\Model\ResourceModel\Browser\Collection $collection */
         $collection = $this->browserFactory->create()->getCollection();
 
         $this->collectionProcessor->process($searchCriteria, $collection);
@@ -80,7 +80,7 @@ class BrowserRepository implements BrowserRepositoryInterface
     /**
      * @param BrowserInterface $browserData
      */
-    public function find(\Tony\NotifyOnNewBrowserLogin\Api\Data\BrowserInterface $browserData)
+    public function find(\Tonyapps\NotifyOnNewBrowserLogin\Api\Data\BrowserInterface $browserData)
     {
         $filterUser = $this->filterBuilder
             ->setField('user_id')
