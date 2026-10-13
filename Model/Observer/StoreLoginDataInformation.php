@@ -1,11 +1,9 @@
 <?php
 namespace Tonyapps\NotifyOnNewBrowserLogin\Model\Observer;
 
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\MailException;
+use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\User\Model\User;
 use Psr\Log\LoggerInterface;
@@ -17,7 +15,7 @@ class StoreLoginDataInformation implements ObserverInterface
     const EMAIL_TEMPLATE_ID = 'tonyapps_notify_on_new_browser_login_template';
     private $browserFactory;
     private $browserRepository;
-    private $request;
+    private $remoteAddress;
     private $transportBuilder;
     private $userAgent;
     private $logger;
@@ -27,7 +25,7 @@ class StoreLoginDataInformation implements ObserverInterface
      * @param \Browser $userAgent
      * @param BrowserFactory $browserFactory
      * @param BrowserRepository $browserRepository
-     * @param RequestInterface $request
+     * @param RemoteAddress $remoteAddress
      * @param TransportBuilder $transportBuilder
      * @param LoggerInterface $logger
      */
@@ -35,13 +33,13 @@ class StoreLoginDataInformation implements ObserverInterface
         \Browser $userAgent,
         BrowserFactory $browserFactory,
         BrowserRepository $browserRepository,
-        RequestInterface $request,
+        RemoteAddress $remoteAddress,
         TransportBuilder $transportBuilder,
         LoggerInterface $logger
     ) {
         $this->userAgent = $userAgent;
         $this->browserFactory = $browserFactory;
-        $this->request = $request;
+        $this->remoteAddress = $remoteAddress;
         $this->browserRepository = $browserRepository;
         $this->transportBuilder = $transportBuilder;
         $this->logger = $logger;
@@ -57,7 +55,7 @@ class StoreLoginDataInformation implements ObserverInterface
         $browser = $this->browserFactory->create();
 
         $browser->setUserId($user->getId());
-        $browser->setIp($this->request->getServer("REMOTE_ADDR"));
+        $browser->setIp((string)$this->remoteAddress->getRemoteAddress());
         $browser->setBrowser($this->userAgent->getBrowser());
         $browser->setPlatform($this->userAgent->getPlatform());
 
@@ -92,9 +90,8 @@ class StoreLoginDataInformation implements ObserverInterface
                 ->getTransport();
 
             $transport->sendMessage();
-        } catch (LocalizedException $e) {
-            $this->logger->error('Failed to send new browser login notification: ' . $e->getMessage());
-        } catch (MailException $e) {
+        } catch (\Exception $e) {
+            // never let a mail failure block admin login
             $this->logger->error('Failed to send new browser login notification: ' . $e->getMessage());
         }
 
