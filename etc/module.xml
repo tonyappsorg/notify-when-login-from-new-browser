@@ -2,6 +2,8 @@
     <module name="Tonyapps_NotifyOnNewBrowserLogin" setup_version="1.0.0">
         <sequence>
             <module name="Magento_Backend"/>
+            <module name="Magento_User"/>
+            <module name="Magento_Email"/>
         </sequence>
     </module>
 </config>

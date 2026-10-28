@@ -1,4 +1,16 @@
-<!--@subject {{var subject}} @-->
-{{trans "Hi %first_name, " first_name=$user.firstname}}
-{{trans "New sign-in to your admin account from following device: "}}<strong>{{var browser}}</strong>.
-{{trans "We're sending an email just to confirm that this was you. If it's not you, change your password immediate!"}}
+<!--@subject {{trans "New sign-in to your admin account"}} @-->
+<!--@vars {
+"var firstname":"Admin First Name",
+"var browser":"Browser",
+"var platform":"Operating System",
+"var ip":"IP Address",
+"var time":"Time"
+} @-->
+<p>{{trans "Hi %name," name=$firstname}}</p>
+<p>{{trans "Your admin account was just used to sign in from a device we haven't seen before:"}}</p>
+<ul>
+    <li>{{trans "Browser: %browser on %platform" browser=$browser platform=$platform}}</li>
+    <li>{{trans "IP address: %ip" ip=$ip}}</li>
+    <li>{{trans "Time: %time" time=$time}}</li>
+</ul>
+<p>{{trans "If this was you, there's nothing to do. If it wasn't, change your password now and ask another administrator to check your account."}}</p>

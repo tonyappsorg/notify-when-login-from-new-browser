@@ -7,12 +7,19 @@
         <column xsi:type="int" name="user_id" padding="11" unsigned="true" nullable="false" identity="false" default="0" comment="Admin User ID"/>
         <column xsi:type="text" name="browser" comment="Browser data"/>
         <column xsi:type="text" name="platform" comment="OS"/>
-        <column xsi:type="text" name="ip" comment="IP"/>
+        <column xsi:type="text" name="ip" comment="Last IP"/>
+        <column xsi:type="varchar" name="token_hash" length="64" nullable="true" comment="SHA-256 of the device cookie token"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="First Seen"/>
+        <column xsi:type="timestamp" name="last_seen_at" on_update="false" nullable="true" comment="Last Seen"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="entity_id"/>
         </constraint>
         <index referenceId="ADMIN_USER_ID" indexType="btree">
             <column name="user_id"/>
+        </index>
+        <index referenceId="ADMIN_USER_BROWSER_USER_ID_TOKEN_HASH" indexType="btree">
+            <column name="user_id"/>
+            <column name="token_hash"/>
         </index>
     </table>
 </schema>
