@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Tonyapps\NotifyOnNewBrowserLogin\Model\Observer;
 
 use Magento\Backend\Model\Session\AdminConfig;
+use Magento\Framework\App\Area;
+use Magento\Framework\App\State;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -20,6 +22,9 @@ use Tonyapps\NotifyOnNewBrowserLogin\Model\ResourceModel\Browser as BrowserResou
  *
  * A device is a random token in a long-lived cookie, stored hashed per user. Browser name and OS alone
  * identified "Chrome on Windows", so a stolen password used from any such machine went unnoticed.
+ *
+ * Listens to admin_user_authenticate_after (global), so admin token requests over REST/SOAP/GraphQL alert too.
+ * API clients keep no cookie: there a device is the client's IP and user agent.
  */
 class StoreLoginDataInformation implements ObserverInterface
 {
@@ -37,7 +42,8 @@ class StoreLoginDataInformation implements ObserverInterface
         private readonly AdminConfig $adminConfig,
         private readonly RequestInterface $request,
         private readonly TransportBuilder $transportBuilder,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly State $appState
     ) {
     }
 
@@ -45,33 +51,56 @@ class StoreLoginDataInformation implements ObserverInterface
     {
         /** @var User $user */
         $user = $observer->getUser();
+        if (!$observer->getResult() || !$user) {
+            return;
+        }
         try {
             $userId = (int)$user->getId();
             $cookie = self::COOKIE_PREFIX . $userId;
             $ip = (string)$this->remoteAddress->getRemoteAddress();
-            $token = (string)$this->cookieManager->getCookie($cookie);
+            $api = $this->isApiRequest();
+            $token = $api
+                ? 'api:' . $ip . '|' . $this->userAgent->getUserAgent()
+                : (string)$this->cookieManager->getCookie($cookie);
             if ($token !== '' && $this->browserResource->isKnown($userId, hash('sha256', $token), $ip)) {
                 return;
             }
 
-            $token = bin2hex(random_bytes(32));
+            if (!$api) {
+                $token = bin2hex(random_bytes(32));
+            }
             $browser = (string)$this->userAgent->getBrowser();
             $platform = (string)$this->userAgent->getPlatform();
             $this->browserResource->remember($userId, hash('sha256', $token), $browser, $platform, $ip);
-            $this->cookieManager->setPublicCookie(
-                $cookie,
-                $token,
-                $this->cookieMetadataFactory->createPublicCookieMetadata()
-                    ->setDuration(self::COOKIE_LIFETIME)
-                    ->setPath($this->adminConfig->getCookiePath())
-                    ->setHttpOnly(true)
-                    ->setSecure($this->request->isSecure())
-                    ->setSameSite('Lax')
-            );
+            if (!$api) {
+                $this->cookieManager->setPublicCookie(
+                    $cookie,
+                    $token,
+                    $this->cookieMetadataFactory->createPublicCookieMetadata()
+                        ->setDuration(self::COOKIE_LIFETIME)
+                        ->setPath($this->adminConfig->getCookiePath())
+                        ->setHttpOnly(true)
+                        ->setSecure($this->request->isSecure())
+                        ->setSameSite('Lax')
+                );
+            }
             $this->notify($user, $browser, $platform, $ip);
         } catch (\Throwable $e) {
             // Never let this block an admin login.
             $this->logger->error('New browser login check failed: ' . $e->getMessage());
+        }
+    }
+
+    private function isApiRequest(): bool
+    {
+        try {
+            return in_array(
+                $this->appState->getAreaCode(),
+                [Area::AREA_WEBAPI_REST, Area::AREA_WEBAPI_SOAP, Area::AREA_GRAPHQL],
+                true
+            );
+        } catch (\Throwable) {
+            return false;
         }
     }
 

@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="backend_auth_user_login_success">
+    <!-- Global, not adminhtml-only backend_auth_user_login_success: also fires for admin tokens over the web API. -->
+    <event name="admin_user_authenticate_after">
         <observer name="tonyapps_notify_on_new_browser_login" instance="Tonyapps\NotifyOnNewBrowserLogin\Model\Observer\StoreLoginDataInformation" />
     </event>
 </config>

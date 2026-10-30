@@ -5,6 +5,7 @@ namespace Tonyapps\NotifyOnNewBrowserLogin\Test\Unit\Model\Observer;
 
 use Magento\Backend\Model\Session\AdminConfig;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\App\State;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Framework\Mail\Template\TransportBuilder;
@@ -30,16 +31,22 @@ class StoreLoginDataInformationTest extends TestCase
     private int $sent = 0;
     private bool $mailFails = false;
     private int $errors = 0;
+    private string $area = 'adminhtml';
+    private bool $result = true;
+    private array $rememberedHashes = [];
 
     private function login(int $userId = 7): void
     {
         $resource = $this->createMock(BrowserResource::class);
         $resource->method('isKnown')->willReturnCallback(
-            fn (int $id, string $hash) => $this->known && $hash === hash('sha256', $this->cookies[StoreLoginDataInformation::COOKIE_PREFIX . $id] ?? '')
+            fn (int $id, string $hash) => $this->known
+                && ($hash === hash('sha256', $this->cookies[StoreLoginDataInformation::COOKIE_PREFIX . $id] ?? '')
+                    || in_array($hash, $this->rememberedHashes, true))
         );
         $resource->method('remember')->willReturnCallback(function (int $id, string $hash, string $browser, string $platform) {
             $this->assertSame(['Chrome', 'Windows'], [$browser, $platform]);
             $this->rememberedHash = $hash;
+            $this->rememberedHashes[] = $hash;
         });
 
         $cookieManager = $this->createMock(CookieManagerInterface::class);
@@ -78,6 +85,9 @@ class StoreLoginDataInformationTest extends TestCase
         $user->method('getId')->willReturn($userId);
         $user->method('getEmail')->willReturn('a@b.c');
 
+        $state = $this->createMock(State::class);
+        $state->method('getAreaCode')->willReturnCallback(fn () => $this->area);
+
         $metadataFactory = $this->createMock(CookieMetadataFactory::class);
         $metadataFactory->method('createPublicCookieMetadata')->willReturnCallback(fn () => new PublicCookieMetadata());
 
@@ -90,8 +100,9 @@ class StoreLoginDataInformationTest extends TestCase
             $adminConfig,
             $this->createMock(RequestInterface::class),
             $tb,
-            $logger
-        ))->execute(new Observer(['user' => $user]));
+            $logger,
+            $state
+        ))->execute(new Observer(['user' => $user, 'result' => $this->result]));
     }
 
     public function testFirstLoginFromADeviceSetsAHashedTokenAndNotifies(): void
@@ -141,5 +152,28 @@ class StoreLoginDataInformationTest extends TestCase
         $this->login();
 
         $this->assertSame(1, $this->errors);
+    }
+
+    public function testFailedAuthenticationIsIgnored(): void
+    {
+        $this->result = false;
+
+        $this->login();
+
+        $this->assertSame(0, $this->sent);
+        $this->assertNull($this->rememberedHash);
+    }
+
+    public function testApiTokenLoginAlertsOncePerClientWithoutCookie(): void
+    {
+        $this->area = 'webapi_rest';
+        $this->known = true;
+
+        $this->login();
+        $this->login();
+
+        $this->assertSame(1, $this->sent, 'the same API client is a known device the second time');
+        $this->assertNull($this->setToken, 'no cookie for API clients');
+        $this->assertSame([hash('sha256', 'api:|' . self::UA)], $this->rememberedHashes);
     }
 }
