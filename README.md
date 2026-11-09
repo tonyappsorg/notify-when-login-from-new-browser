@@ -28,6 +28,15 @@ used from any such machine raised no alert.
   ignores failed attempts. API clients keep no cookie, so there a device is the hash of the client's IP and user
   agent: an integration alerts once, not on every token request, and again when it calls from a new IP.
 
+## 2026-11-09 email redesign
+
+The alert is laid out like the other Tonyapps emails: a *Security alert* heading, the sign-in details in a table
+(account, admin panel or web API, browser and OS, IP, time), a *Wasn't you?* box with steps and a **Change your
+password** button (admin account settings, linked without a secret key so it works from an email), and the admin
+host on top for people who run several stores. It is sent in the adminhtml area, where the storefront email
+header/footer templates don't exist, so it carries its own frame. New template variables: `username`, `channel`,
+`accountUrl`, `adminHost`.
+
 ## Install
 
 ```

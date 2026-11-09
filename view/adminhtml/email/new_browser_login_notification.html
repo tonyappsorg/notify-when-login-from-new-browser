@@ -1,16 +1,84 @@
 <!--@subject {{trans "New sign-in to your admin account"}} @-->
 <!--@vars {
 "var firstname":"Admin First Name",
+"var username":"Admin User Name",
+"var channel":"Signed In Through",
 "var browser":"Browser",
 "var platform":"Operating System",
 "var ip":"IP Address",
-"var time":"Time"
+"var time":"Time",
+"var accountUrl":"Account Settings URL",
+"var adminHost":"Admin Host"
 } @-->
-<p>{{trans "Hi %name," name=$firstname}}</p>
-<p>{{trans "Your admin account was just used to sign in from a device we haven't seen before:"}}</p>
-<ul>
-    <li>{{trans "Browser: %browser on %platform" browser=$browser platform=$platform}}</li>
-    <li>{{trans "IP address: %ip" ip=$ip}}</li>
-    <li>{{trans "Time: %time" time=$time}}</li>
-</ul>
-<p>{{trans "If this was you, there's nothing to do. If it wasn't, change your password now and ask another administrator to check your account."}}</p>
+<!-- Admin-area email: the storefront header/footer templates aren't available here, so it has its own frame. -->
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f5f5f5;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:#333333;">
+<tr><td align="center" style="padding:24px 12px;">
+<table width="600" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px;width:100%;">
+    <tr>
+        <td style="padding:0 0 16px;font-size:18px;font-weight:600;color:#514943;">{{var adminHost}}</td>
+    </tr>
+    <tr><td style="padding:32px;background:#ffffff;border-radius:4px;">
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+    <tr>
+        <td style="padding-bottom:20px;">
+            <p style="margin:0 0 8px;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#e22626;">{{trans "Security alert"}}</p>
+            <h1 style="margin:0 0 12px;font-size:24px;font-weight:600;">{{trans "New sign-in to your admin account"}}</h1>
+            <p style="margin:0;">{{trans "Hi %name, your admin account was just used to sign in from a device we haven't seen before." name=$firstname}}</p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding-bottom:24px;">
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f8f8f8;border:1px solid #e5e5e5;border-radius:4px;">
+                <tr>
+                    <td style="padding:12px 16px;border-bottom:1px solid #e5e5e5;color:#666666;width:40%;">{{trans "Account"}}</td>
+                    <td style="padding:12px 16px;border-bottom:1px solid #e5e5e5;font-weight:600;">{{var username}}</td>
+                </tr>
+                <tr>
+                    <td style="padding:12px 16px;border-bottom:1px solid #e5e5e5;color:#666666;">{{trans "Signed in through"}}</td>
+                    <td style="padding:12px 16px;border-bottom:1px solid #e5e5e5;font-weight:600;">{{var channel}}</td>
+                </tr>
+                <tr>
+                    <td style="padding:12px 16px;border-bottom:1px solid #e5e5e5;color:#666666;">{{trans "Device"}}</td>
+                    <td style="padding:12px 16px;border-bottom:1px solid #e5e5e5;font-weight:600;">{{trans "%browser on %platform" browser=$browser platform=$platform}}</td>
+                </tr>
+                <tr>
+                    <td style="padding:12px 16px;border-bottom:1px solid #e5e5e5;color:#666666;">{{trans "IP address"}}</td>
+                    <td style="padding:12px 16px;border-bottom:1px solid #e5e5e5;font-weight:600;">{{var ip}}</td>
+                </tr>
+                <tr>
+                    <td style="padding:12px 16px;color:#666666;">{{trans "Time"}}</td>
+                    <td style="padding:12px 16px;font-weight:600;">{{var time}}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding-bottom:16px;">
+            <p style="margin:0;"><strong>{{trans "Was this you?"}}</strong> {{trans "Then there's nothing to do. We remember this device, so you won't hear from us again when you sign in from it."}}</p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding-bottom:24px;">
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                <tr>
+                    <td style="padding:20px;background:#fdf0f0;border-left:4px solid #e22626;border-radius:2px;">
+                        <p style="margin:0 0 8px;font-size:16px;font-weight:600;">{{trans "Wasn't you?"}}</p>
+                        <p style="margin:0 0 4px;">{{trans "1. Change your password straight away."}}</p>
+                        <p style="margin:0 0 4px;">{{trans "2. Ask another administrator to check your account and recent admin activity."}}</p>
+                        <p style="margin:0 0 16px;">{{trans "3. If your store has Action Log, end your other sessions under Action Log › Active Sessions."}}</p>
+                        <a href="{{var accountUrl}}" style="display:inline-block;padding:12px 24px;background:#e22626;color:#ffffff;text-decoration:none;font-weight:600;border-radius:3px;">{{trans "Change your password"}}</a>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding-top:16px;border-top:1px solid #e5e5e5;">
+            <p style="margin:0;font-size:12px;color:#999999;">{{trans "We send this the first time your account signs in from a browser or an API client. Clearing cookies or using a private window counts as a new device."}}</p>
+        </td>
+    </tr>
+</table>
+    </td></tr>
+</table>
+</td></tr>
+</table>

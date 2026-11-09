@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Tonyapps\NotifyOnNewBrowserLogin\Model\Observer;
 
 use Magento\Backend\Model\Session\AdminConfig;
+use Magento\Backend\Model\UrlInterface as BackendUrl;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Magento\Framework\App\RequestInterface;
@@ -43,7 +44,8 @@ class StoreLoginDataInformation implements ObserverInterface
         private readonly RequestInterface $request,
         private readonly TransportBuilder $transportBuilder,
         private readonly LoggerInterface $logger,
-        private readonly State $appState
+        private readonly State $appState,
+        private readonly BackendUrl $backendUrl
     ) {
     }
 
@@ -84,7 +86,7 @@ class StoreLoginDataInformation implements ObserverInterface
                         ->setSameSite('Lax')
                 );
             }
-            $this->notify($user, $browser, $platform, $ip);
+            $this->notify($user, $browser, $platform, $ip, $api);
         } catch (\Throwable $e) {
             // Never let this block an admin login.
             $this->logger->error('New browser login check failed: ' . $e->getMessage());
@@ -104,7 +106,7 @@ class StoreLoginDataInformation implements ObserverInterface
         }
     }
 
-    private function notify(User $admin, string $browser, string $platform, string $ip): void
+    private function notify(User $admin, string $browser, string $platform, string $ip, bool $api): void
     {
         $this->transportBuilder
             ->setTemplateIdentifier(self::EMAIL_TEMPLATE_ID)
@@ -116,6 +118,12 @@ class StoreLoginDataInformation implements ObserverInterface
                 'platform' => $platform,
                 'ip' => $ip !== '' ? $ip : (string)__('unknown'),
                 'time' => gmdate('Y-m-d H:i') . ' UTC',
+                'username' => (string)$admin->getUserName(),
+                'channel' => (string)($api ? __('Web API (admin token)') : __('Admin panel')),
+                // No secret key: an email link with one would only land on the dashboard.
+                'accountUrl' => $this->backendUrl->getUrl('adminhtml/system_account/index', ['_nosecret' => true, '_nosid' => true]),
+                // Which store's admin, for people who run several.
+                'adminHost' => (string)parse_url($this->backendUrl->getBaseUrl(), PHP_URL_HOST),
             ])
             ->addTo($admin->getEmail(), $admin->getName())
             ->getTransport()

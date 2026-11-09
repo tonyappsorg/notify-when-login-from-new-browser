@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Tonyapps\NotifyOnNewBrowserLogin\Test\Unit\Model\Observer;
 
 use Magento\Backend\Model\Session\AdminConfig;
+use Magento\Backend\Model\UrlInterface as BackendUrl;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\State;
 use Magento\Framework\Event\Observer;
@@ -34,6 +35,31 @@ class StoreLoginDataInformationTest extends TestCase
     private string $area = 'adminhtml';
     private bool $result = true;
     private array $rememberedHashes = [];
+
+    private array $vars = [];
+
+    private function backendUrl(): BackendUrl
+    {
+        $url = $this->createMock(BackendUrl::class);
+        $url->method('getBaseUrl')->willReturn('https://shop.example.com/admin/');
+        $url->method('getUrl')->willReturnCallback(
+            static fn(string $route, array $params) => $params === ['_nosecret' => true, '_nosid' => true]
+                ? 'https://shop/admin/' . $route
+                : 'wrong-params'
+        );
+        return $url;
+    }
+
+    public function testEmailNamesTheAccountTheChannelAndLinksToAccountSettings(): void
+    {
+        $this->login();
+
+        self::assertSame('wk', $this->vars['username']);
+        self::assertSame('Admin panel', $this->vars['channel']);
+        self::assertSame('https://shop/admin/adminhtml/system_account/index', $this->vars['accountUrl']);
+        self::assertSame('unknown', $this->vars['ip']);
+        self::assertSame('shop.example.com', $this->vars['adminHost']);
+    }
 
     private function login(int $userId = 7): void
     {
@@ -66,9 +92,13 @@ class StoreLoginDataInformationTest extends TestCase
             $this->sent++;
         });
         $tb = $this->createMock(TransportBuilder::class);
-        foreach (['setTemplateIdentifier', 'setTemplateOptions', 'setFromByScope', 'setTemplateVars', 'addTo'] as $m) {
+        foreach (['setTemplateIdentifier', 'setTemplateOptions', 'setFromByScope', 'addTo'] as $m) {
             $tb->method($m)->willReturnSelf();
         }
+        $tb->method('setTemplateVars')->willReturnCallback(function (array $vars) use ($tb) {
+            $this->vars = $vars;
+            return $tb;
+        });
         $tb->method('getTransport')->willReturn($transport);
 
         $adminConfig = $this->createMock(AdminConfig::class);
@@ -81,7 +111,8 @@ class StoreLoginDataInformationTest extends TestCase
         });
 
         $user = $this->getMockBuilder(User::class)->disableOriginalConstructor()
-            ->onlyMethods(['getId', 'getEmail', 'getName'])->getMock();
+            ->onlyMethods(['getId', 'getEmail', 'getName', 'getUserName'])->getMock();
+        $user->method('getUserName')->willReturn('wk');
         $user->method('getId')->willReturn($userId);
         $user->method('getEmail')->willReturn('a@b.c');
 
@@ -101,7 +132,8 @@ class StoreLoginDataInformationTest extends TestCase
             $this->createMock(RequestInterface::class),
             $tb,
             $logger,
-            $state
+            $state,
+            $this->backendUrl()
         ))->execute(new Observer(['user' => $user, 'result' => $this->result]));
     }
 
