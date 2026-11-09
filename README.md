@@ -37,6 +37,14 @@ host on top for people who run several stores. It is sent in the adminhtml area,
 header/footer templates don't exist, so it carries its own frame. New template variables: `username`, `channel`,
 `accountUrl`, `adminHost`.
 
+## Emails
+
+Screenshots of the emails as sent (Luma theme, 2026-11-09). Source images are in `docs/emails/`.
+
+**New sign-in alert**
+
+![New sign-in alert](docs/emails/new-sign-in.png)
+
 ## Install
 
 ```
