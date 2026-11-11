@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="admin">
+            <group id="security">
+                <field id="new_browser_login_template" translate="label comment" type="select" sortOrder="200" showInDefault="1">
+                    <label>New Device Sign-in Email</label>
+                    <comment>Sent to an admin user when their account signs in from a device it hasn't used before.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

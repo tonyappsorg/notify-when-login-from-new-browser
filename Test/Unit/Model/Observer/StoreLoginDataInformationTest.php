@@ -5,6 +5,7 @@ namespace Tonyapps\NotifyOnNewBrowserLogin\Test\Unit\Model\Observer;
 
 use Magento\Backend\Model\Session\AdminConfig;
 use Magento\Backend\Model\UrlInterface as BackendUrl;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\State;
 use Magento\Framework\Event\Observer;
@@ -37,6 +38,7 @@ class StoreLoginDataInformationTest extends TestCase
     private array $rememberedHashes = [];
 
     private array $vars = [];
+    private ?string $template = null;
 
     private function backendUrl(): BackendUrl
     {
@@ -59,6 +61,13 @@ class StoreLoginDataInformationTest extends TestCase
         self::assertSame('https://shop/admin/adminhtml/system_account/index', $this->vars['accountUrl']);
         self::assertSame('unknown', $this->vars['ip']);
         self::assertSame('shop.example.com', $this->vars['adminHost']);
+    }
+
+    public function testEmailUsesTheTemplateChosenInConfig(): void
+    {
+        $this->login();
+
+        self::assertSame('23', $this->template);
     }
 
     private function login(int $userId = 7): void
@@ -92,7 +101,11 @@ class StoreLoginDataInformationTest extends TestCase
             $this->sent++;
         });
         $tb = $this->createMock(TransportBuilder::class);
-        foreach (['setTemplateIdentifier', 'setTemplateOptions', 'setFromByScope', 'addTo'] as $m) {
+        $tb->method('setTemplateIdentifier')->willReturnCallback(function (string $template) use ($tb) {
+            $this->template = $template;
+            return $tb;
+        });
+        foreach (['setTemplateOptions', 'setFromByScope', 'addTo'] as $m) {
             $tb->method($m)->willReturnSelf();
         }
         $tb->method('setTemplateVars')->willReturnCallback(function (array $vars) use ($tb) {
@@ -122,6 +135,9 @@ class StoreLoginDataInformationTest extends TestCase
         $metadataFactory = $this->createMock(CookieMetadataFactory::class);
         $metadataFactory->method('createPublicCookieMetadata')->willReturnCallback(fn () => new PublicCookieMetadata());
 
+        $scopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $scopeConfig->method('getValue')->willReturnMap([[StoreLoginDataInformation::XML_PATH_EMAIL_TEMPLATE, 'default', null, '23']]);
+
         (new StoreLoginDataInformation(
             new \Browser(self::UA),
             $resource,
@@ -133,7 +149,8 @@ class StoreLoginDataInformationTest extends TestCase
             $tb,
             $logger,
             $state,
-            $this->backendUrl()
+            $this->backendUrl(),
+            $scopeConfig
         ))->execute(new Observer(['user' => $user, 'result' => $this->result]));
     }
 

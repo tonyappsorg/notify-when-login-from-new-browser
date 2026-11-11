@@ -6,6 +6,7 @@ namespace Tonyapps\NotifyOnNewBrowserLogin\Model\Observer;
 use Magento\Backend\Model\Session\AdminConfig;
 use Magento\Backend\Model\UrlInterface as BackendUrl;
 use Magento\Framework\App\Area;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\State;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
@@ -29,7 +30,8 @@ use Tonyapps\NotifyOnNewBrowserLogin\Model\ResourceModel\Browser as BrowserResou
  */
 class StoreLoginDataInformation implements ObserverInterface
 {
-    public const EMAIL_TEMPLATE_ID = 'tonyapps_notify_on_new_browser_login_template';
+    /** Stores › Configuration › Advanced › Admin › Security › New Device Sign-in Email. */
+    public const XML_PATH_EMAIL_TEMPLATE = 'admin/security/new_browser_login_template';
     // Per user, so two admins sharing a browser don't overwrite each other's token.
     public const COOKIE_PREFIX = 'tonyapps_admin_device_';
     private const COOKIE_LIFETIME = 2 * 365 * 86400;
@@ -45,7 +47,8 @@ class StoreLoginDataInformation implements ObserverInterface
         private readonly TransportBuilder $transportBuilder,
         private readonly LoggerInterface $logger,
         private readonly State $appState,
-        private readonly BackendUrl $backendUrl
+        private readonly BackendUrl $backendUrl,
+        private readonly ScopeConfigInterface $scopeConfig
     ) {
     }
 
@@ -109,7 +112,7 @@ class StoreLoginDataInformation implements ObserverInterface
     private function notify(User $admin, string $browser, string $platform, string $ip, bool $api): void
     {
         $this->transportBuilder
-            ->setTemplateIdentifier(self::EMAIL_TEMPLATE_ID)
+            ->setTemplateIdentifier((string)$this->scopeConfig->getValue(self::XML_PATH_EMAIL_TEMPLATE))
             ->setTemplateOptions(['area' => 'adminhtml', 'store' => 0])
             ->setFromByScope('general')
             ->setTemplateVars([

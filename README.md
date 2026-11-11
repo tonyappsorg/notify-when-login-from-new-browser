@@ -59,3 +59,13 @@ Requires `cbschuld/browser.php` (in `composer.json`).
 ```
 vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Tonyapps/NotifyOnNewBrowserLogin/Test/Unit
 ```
+
+## Redesigning the emails
+
+Each email's template is chosen in **Stores › Configuration › Advanced › Admin › Security › New Device Sign-in Email**. Pick a template made in **Marketing › Email Templates** or a design made
+with the [Email Designer](https://github.com/tonyappsorg/magento2-email-designer) (`Tonyapps_EmailDesigner`) (**Marketing › Communications › Email Designer**). The default template is used until another one
+is picked.
+
+The template IDs follow core's config-path convention so the setting can offer the default: `tonyapps_notify_on_new_browser_login_template` is now `admin_security_new_browser_login_template`. Theme overrides
+keep working (they go by file name). A custom template created from the old ID keeps its content, but its *Template
+Information* no longer names the default it was loaded from.
