@@ -1,71 +1,74 @@
-# Tonyapps_NotifyOnNewBrowserLogin
+# New Device Sign-in Alerts for Magento 2 Admin
 
-Emails an admin user when their account signs in from a device it hasn't used before.
+Email an admin user when their account signs in from a device it hasn't used before.
+
+Magento Open Source doesn't tell an admin when their account is used somewhere new, so a stolen password can go
+unnoticed. This module recognises each admin's devices and sends a security alert the first time the account signs
+in from an unknown one. Admin panel sign-ins and admin token requests over the web API are both covered.
+
+## Features
+
+- **New-device alert**: the first sign-in from an unknown device emails the account's owner. Known devices stay
+  quiet.
+- **Real device recognition**: each browser gets its own random token in a cookie, so a stolen password used on
+  another "Chrome on Windows" machine still raises an alert.
+- **Web API sign-ins covered**: admin token requests over REST, SOAP or GraphQL alert too. An integration alerts
+  once, and again when it connects from a new IP address.
+- **Clear alert email**: account, admin panel or web API, browser and OS, IP address and time (UTC), the admin
+  host for people who run several stores, and a *Wasn't you?* box with a **Change your password** button.
+- **Never blocks a sign-in**: if the email, cookie or database step fails, the error is logged and the admin signs
+  in as normal.
+- **Privacy-minded storage**: only a SHA-256 hash of each device token is stored, never the token itself.
 
 ## How it works
 
-| Piece | What it does |
-|---|---|
-| `Model\Observer\StoreLoginDataInformation` | On `admin_user_authenticate_after` with a successful result (global: admin panel and admin token requests over REST/SOAP/GraphQL; after the password check, before 2FA): reads the `tonyapps_admin_device_<user id>` cookie. A known token updates the device's IP and last-seen time and stays quiet. Otherwise a new random 256-bit token is set (HttpOnly, Secure on HTTPS, SameSite=Lax, admin cookie path, 2 years), the device is stored, and the admin is emailed. |
-| `admin_user_browser` | One row per user and device: SHA-256 of the token (never the token itself), browser, OS, last IP, first and last seen. |
-| `cbschuld/browser.php` | Browser name and OS for the email and the table. |
+After a successful password check (before two-factor authentication), the module looks for the admin's device
+cookie. If the device is known, it records the IP address and time and does nothing else. If not, it remembers the
+new device and emails the admin. Each admin user on a shared browser has their own cookie, so they don't reset each
+other's devices.
 
-The email shows the browser, OS, IP and time (UTC). Any failure (mail, cookie, DB) is logged and never blocks the login.
+## Screenshots
 
-Why a cookie and not browser + OS: those are the same on most machines ("Chrome on Windows"), so a stolen password
-used from any such machine raised no alert.
-
-## Notes
-
-* Clearing cookies, a private window, or a new browser profile counts as a new device and sends an email.
-* Two admins sharing a browser each get their own cookie, so they don't reset each other's device.
-* `ponytail:` no alert on a new IP for a known device, and old device rows aren't purged. Add either if needed.
-
-## Review fixes (2026-10-30)
-
-- **Admin logins over the web API alert too** (`/V1/integration/admin/token`, the 2FA token endpoints): the observer
-  moved from the panel-only `backend_auth_user_login_success` to the global `admin_user_authenticate_after`, and
-  ignores failed attempts. API clients keep no cookie, so there a device is the hash of the client's IP and user
-  agent: an integration alerts once, not on every token request, and again when it calls from a new IP.
-
-## 2026-11-09 email redesign
-
-The alert is laid out like the other Tonyapps emails: a *Security alert* heading, the sign-in details in a table
-(account, admin panel or web API, browser and OS, IP, time), a *Wasn't you?* box with steps and a **Change your
-password** button (admin account settings, linked without a secret key so it works from an email), and the admin
-host on top for people who run several stores. It is sent in the adminhtml area, where the storefront email
-header/footer templates don't exist, so it carries its own frame. New template variables: `username`, `channel`,
-`accountUrl`, `adminHost`.
-
-## Emails
-
-Screenshots of the emails as sent (Luma theme, 2026-11-09). Source images are in `docs/emails/`.
+Screenshots of the emails as sent (Luma theme, 2026-11-09).
 
 **New sign-in alert**
 
 ![New sign-in alert](docs/emails/new-sign-in.png)
 
-## Install
+## Good to know
+
+- Clearing cookies, a private window, or a new browser profile counts as a new device and sends an email.
+- A known device signing in from a new IP address does not trigger an alert (web API clients excepted, see above).
+- Device records are kept; old devices are not cleaned up automatically.
+- The alert goes to the admin user whose account signed in, not to a central security address.
+
+## Requirements
+
+- Magento Open Source 2.4 (developed on 2.4.8)
+- PHP 8.3 or 8.4
+- Magento modules: Backend, Email, User
+- `cbschuld/browser.php` ^2.0 (installed by Composer)
+
+## Installation
 
 ```
+composer require tonyapps/module-notify-on-new-browser-login
 bin/magento module:enable Tonyapps_NotifyOnNewBrowserLogin
 bin/magento setup:upgrade
 ```
 
-Requires `cbschuld/browser.php` (in `composer.json`).
+## Configuration
 
-## Tests
-
-```
-vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Tonyapps/NotifyOnNewBrowserLogin/Test/Unit
-```
+- **Stores > Configuration > Advanced > Admin > Security > New Device Sign-in Email**: the email template. The
+  module works with the default template out of the box.
 
 ## Redesigning the emails
 
-Each email's template is chosen in **Stores › Configuration › Advanced › Admin › Security › New Device Sign-in Email**. Pick a template made in **Marketing › Email Templates** or a design made
-with the [Email Designer](https://github.com/tonyappsorg/magento2-email-designer) (`Tonyapps_EmailDesigner`) (**Marketing › Communications › Email Designer**). The default template is used until another one
-is picked.
+Choose the template in **Stores > Configuration > Advanced > Admin > Security > New Device Sign-in Email**. Pick a
+template made in **Marketing > Email Templates**, or a design made with the
+[Email Designer](https://github.com/tonyappsorg/magento2-email-designer) (`Tonyapps_EmailDesigner`) in
+**Marketing > Communications > Email Designer**. The default template is used until another one is picked.
 
-The template IDs follow core's config-path convention so the setting can offer the default: `tonyapps_notify_on_new_browser_login_template` is now `admin_security_new_browser_login_template`. Theme overrides
-keep working (they go by file name). A custom template created from the old ID keeps its content, but its *Template
-Information* no longer names the default it was loaded from.
+## For developers
+
+Architecture, decisions, data model and tests are in [AGENTS.md](AGENTS.md).
