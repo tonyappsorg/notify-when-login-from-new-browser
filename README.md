@@ -67,7 +67,8 @@ bin/magento setup:upgrade
 Choose the template in **Stores > Configuration > Advanced > Admin > Security > New Device Sign-in Email**. Pick a
 template made in **Marketing > Email Templates**, or a design made with the
 [Email Designer](https://github.com/tonyappsorg/magento2-email-designer) (`Tonyapps_EmailDesigner`) in
-**Marketing > Communications > Email Designer**. The default template is used until another one is picked.
+**Marketing > Communications > Email Designer**. The default template is used until another one is picked. A new
+design starts from a ready-made copy of the alert, with its sign-in details table as a drag-and-drop block.
 
 ## For developers
 

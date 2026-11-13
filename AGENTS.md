@@ -24,6 +24,10 @@ Emails an admin user when their account signs in from a device it hasn't used be
 - Any failure (mail, cookie, DB) is logged and never blocks the login.
 - Why a cookie and not browser + OS: those are the same on most machines ("Chrome on Windows"), so a stolen password
   used from any such machine raised no alert.
+- Email Designer (`etc/di.xml`, ignored without `Tonyapps_EmailDesigner`): block `notifyonnewbrowserlogin_details`
+  (*Sign-in details*, the account/channel/device/IP/time table) and starter
+  `view/adminhtml/email_designer/new_browser_login_notification.mjml` for `admin_security_new_browser_login_template`
+  (inner content only; the designer adds header and footer).
 
 ## Data model
 
@@ -65,6 +69,8 @@ Screenshots of the emails as sent (Luma theme, 2026-11-09) are in `docs/emails/`
 
 ## Change history
 
+- **2026-11-13 Email Designer blocks and starter designs**: `etc/di.xml` registers the *Sign-in details* block and a starter design: the alert texts, the "Wasn't you?"
+  box as editable text (light red background, red left border), and "Change your password" as a button.
 - **Template ID rename** (with the "Redesigning the emails" config setting): the template IDs follow core's
   config-path convention so the setting can offer the default: `tonyapps_notify_on_new_browser_login_template` is
   now `admin_security_new_browser_login_template`. Theme overrides keep working (they go by file name). A custom
