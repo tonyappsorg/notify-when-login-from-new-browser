@@ -74,6 +74,8 @@ Screenshots of the emails as sent (Luma theme, 2026-11-09) are in `docs/emails/`
 
 ## Change history
 
+- **2026-11-16** — Released as free software under GPL-3.0-or-later (owner decision): `LICENSE` added,
+  `composer.json` license changed from `proprietary`, License section in the README.
 - **2026-11-15 Email Designer real-data preview**: `Model\EmailPreview` previews and test-sends the alert with a
   recorded device. The observer's variables moved into a public `getVariables()` (optional sign-in time), shared with
   the preview; sending unchanged.

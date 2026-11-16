@@ -74,3 +74,7 @@ The designer can preview and test-send the design with a real admin sign-in from
 ## For developers
 
 Architecture, decisions, data model and tests are in [AGENTS.md](AGENTS.md).
+
+## License
+
+Free and open source under the [GNU General Public License v3.0 or later](LICENSE).

@@ -3,7 +3,7 @@
     "description": "Emails an admin user when they sign in from a browser/platform not seen before",
     "type": "magento2-module",
     "version": "1.0.0",
-    "license": "proprietary",
+    "license": "GPL-3.0-or-later",
     "require": {
         "php": "~8.3.0||~8.4.0",
         "cbschuld/browser.php": "^2.0",
