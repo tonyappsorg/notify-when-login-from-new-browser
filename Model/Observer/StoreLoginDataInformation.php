@@ -115,21 +115,38 @@ class StoreLoginDataInformation implements ObserverInterface
             ->setTemplateIdentifier((string)$this->scopeConfig->getValue(self::XML_PATH_EMAIL_TEMPLATE))
             ->setTemplateOptions(['area' => 'adminhtml', 'store' => 0])
             ->setFromByScope('general')
-            ->setTemplateVars([
-                'firstname' => (string)$admin->getFirstName(),
-                'browser' => $browser,
-                'platform' => $platform,
-                'ip' => $ip !== '' ? $ip : (string)__('unknown'),
-                'time' => gmdate('Y-m-d H:i') . ' UTC',
-                'username' => (string)$admin->getUserName(),
-                'channel' => (string)($api ? __('Web API (admin token)') : __('Admin panel')),
-                // No secret key: an email link with one would only land on the dashboard.
-                'accountUrl' => $this->backendUrl->getUrl('adminhtml/system_account/index', ['_nosecret' => true, '_nosid' => true]),
-                // Which store's admin, for people who run several.
-                'adminHost' => (string)parse_url($this->backendUrl->getBaseUrl(), PHP_URL_HOST),
-            ])
+            ->setTemplateVars($this->getVariables($admin, $browser, $platform, $ip, $api))
             ->addTo($admin->getEmail(), $admin->getName())
             ->getTransport()
             ->sendMessage();
+    }
+
+    /**
+     * Template variables of the sign-in email; also the Email Designer's real-data preview.
+     *
+     * @param int|null $time Unix time of the sign-in, now when null
+     * @return array<string, string>
+     */
+    public function getVariables(
+        User $admin,
+        string $browser,
+        string $platform,
+        string $ip,
+        bool $api,
+        ?int $time = null
+    ): array {
+        return [
+            'firstname' => (string)$admin->getFirstName(),
+            'browser' => $browser,
+            'platform' => $platform,
+            'ip' => $ip !== '' ? $ip : (string)__('unknown'),
+            'time' => gmdate('Y-m-d H:i', $time ?? time()) . ' UTC',
+            'username' => (string)$admin->getUserName(),
+            'channel' => (string)($api ? __('Web API (admin token)') : __('Admin panel')),
+            // No secret key: an email link with one would only land on the dashboard.
+            'accountUrl' => $this->backendUrl->getUrl('adminhtml/system_account/index', ['_nosecret' => true, '_nosid' => true]),
+            // Which store's admin, for people who run several.
+            'adminHost' => (string)parse_url($this->backendUrl->getBaseUrl(), PHP_URL_HOST),
+        ];
     }
 }

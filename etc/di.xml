@@ -17,4 +17,17 @@
             </argument>
         </arguments>
     </type>
+    <!-- Tonyapps_EmailDesigner: real-data preview of the sign-in alert. Ignored without that module. -->
+    <type name="Tonyapps\EmailDesigner\Model\PreviewPool">
+        <arguments>
+            <argument name="providers" xsi:type="array">
+                <item name="notifyonnewbrowserlogin_emails" xsi:type="array">
+                    <item name="templates" xsi:type="array">
+                        <item name="0" xsi:type="string">admin_security_new_browser_login_template</item>
+                    </item>
+                    <item name="provider" xsi:type="object">Tonyapps\NotifyOnNewBrowserLogin\Model\EmailPreview</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
 </config>

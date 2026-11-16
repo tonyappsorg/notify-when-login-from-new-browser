@@ -28,6 +28,10 @@ Emails an admin user when their account signs in from a device it hasn't used be
   (*Sign-in details*, the account/channel/device/IP/time table) and starter
   `view/adminhtml/email_designer/new_browser_login_notification.mjml` for `admin_security_new_browser_login_template`
   (inner content only; the designer adds header and footer).
+- Email Designer real-data preview (`etc/di.xml`, `PreviewPool`): `Model\EmailPreview` offers recent devices from
+  `admin_user_browser` (users that still exist); variables come from the observer's `getVariables()`, which it sends.
+  The table keeps the last IP and not the channel, so the preview shows the last IP, "Admin panel", and the first-seen
+  time. `getStoreId()` returns the store it is sent from (0, admin). Read-only (never calls `isKnown()`, which updates the row).
 
 ## Data model
 
@@ -63,12 +67,16 @@ Emails an admin user when their account signs in from a device it hasn't used be
 vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Tonyapps/NotifyOnNewBrowserLogin/Test/Unit
 ```
 
-Tests: `Test/Unit/Model/Observer/StoreLoginDataInformationTest.php`, `Test/Unit/View/NotificationEmailTest.php`.
+Tests: `Test/Unit/Model/Observer/StoreLoginDataInformationTest.php`, `Test/Unit/Model/EmailPreviewTest.php`,
+`Test/Unit/View/NotificationEmailTest.php`.
 
 Screenshots of the emails as sent (Luma theme, 2026-11-09) are in `docs/emails/` and shown in README.md.
 
 ## Change history
 
+- **2026-11-15 Email Designer real-data preview**: `Model\EmailPreview` previews and test-sends the alert with a
+  recorded device. The observer's variables moved into a public `getVariables()` (optional sign-in time), shared with
+  the preview; sending unchanged.
 - **2026-11-13 Email Designer blocks and starter designs**: `etc/di.xml` registers the *Sign-in details* block and a starter design: the alert texts, the "Wasn't you?"
   box as editable text (light red background, red left border), and "Change your password" as a button.
 - **Template ID rename** (with the "Redesigning the emails" config setting): the template IDs follow core's
